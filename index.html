@@ -31,7 +31,7 @@
     .modal-backdrop.show{display:flex}.success-modal{width:min(480px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.3);overflow:hidden;animation:modalIn .2s ease-out}
     .modal-head{background:#ecfdf3;padding:24px 24px 18px;text-align:center}.success-icon{width:58px;height:58px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#067647;color:#fff;font-size:32px;font-weight:700}.modal-head h2{margin:0;color:#065f46;font-size:23px}.modal-body{padding:22px 24px}.modal-body p{margin:0 0 13px;line-height:1.55}.modal-details{background:#f8fafc;border:1px solid #dbe3ec;border-radius:10px;padding:13px 15px;margin:14px 0}.modal-details strong{color:var(--navy)}.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.modal-link{display:inline-block;text-decoration:none}.modal-note{font-size:13px;color:var(--muted)}
     @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
-    .footer-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}
+    .footer-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}.calculated{background:#f5f5f5!important;font-weight:700}.eligibility-note{margin-top:5px;padding:8px 10px;border-radius:7px;font-size:12px;font-weight:700}.eligibility-note.ok{background:#ecfdf3;color:#067647}.eligibility-note.bad{background:#fff1f0;color:#b42318}
     @media(max-width:720px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header{padding:22px}.header h1{font-size:22px}.card{padding:16px}}
   </style>
 </head>
@@ -50,6 +50,18 @@
         <legend>Applicant Details</legend>
         <div class="grid">
           <div><label for="name">Full Name <span class="req">*</span></label><input id="name" name="name" maxlength="80" autocomplete="name" placeholder="As per official records" required><div class="error" id="nameError"></div></div>
+          <div>
+            <label for="dateOfBirth">Date of Birth <span class="req">*</span></label>
+            <input id="dateOfBirth" name="dateOfBirth" type="date" required>
+            <div class="hint">Age will be calculated as on 01-06-2026.</div>
+            <div class="error" id="dateOfBirthError"></div>
+          </div>
+          <div>
+            <label for="ageAsOn">Age as on 01-06-2026</label>
+            <input id="ageAsOn" name="ageAsOn" type="text" readonly class="calculated" placeholder="Calculated automatically">
+            <div id="eligibilityMessage" class="eligibility-note" hidden></div>
+            <div class="error" id="ageAsOnError"></div>
+          </div>
           <div><label for="designation">Designation <span class="req">*</span></label><select id="designation" name="designation" required><option value="">Select designation</option><option>Contract Lecturer</option><option>Guest Faculty</option><option>Academic Consultant</option><option>Other</option></select><div class="error" id="designationError"></div></div>
           <div><label for="subject">Subject <span class="req">*</span></label><select id="subject" name="subject" required>
 
@@ -140,24 +152,26 @@
       <fieldset>
         <legend>Service Details</legend>
         <div class="grid">
-          <div><label for="contractJoinDate">Date of Joining in Contract Services <span class="req">*</span></label><input id="contractJoinDate" name="contractJoinDate" type="date" required><div class="error" id="contractJoinDateError"></div></div>
-          <div><label for="presentCollegeJoinDate">Date of Joining in Present College <span class="req">*</span></label><input id="presentCollegeJoinDate" name="presentCollegeJoinDate" type="date" required><div class="error" id="presentCollegeJoinDateError"></div></div>
-         <div>
-    <label for="serviceYears">
-        Completed Years of Service <span class="req">*</span>
-    </label>
-
-    <input
-        id="serviceYears"
-        name="serviceYears"
-        type="number"
-        readonly
-        min="0"
-        style="background:#f5f5f5;font-weight:bold;"
-    >
-
-    <div class="error" id="serviceYearsError"></div>
-</div>
+          <div>
+            <label for="contractJoinDate">Date of Joining in Contract Services <span class="req">*</span></label>
+            <input id="contractJoinDate" name="contractJoinDate" type="date" required>
+            <div class="error" id="contractJoinDateError"></div>
+          </div>
+          <div>
+            <label for="completedService">Completed Contract Service as on 01-06-2026</label>
+            <input id="completedService" name="completedService" type="text" readonly class="calculated" placeholder="Calculated automatically">
+            <div class="error" id="completedServiceError"></div>
+          </div>
+          <div>
+            <label for="presentCollegeJoinDate">Date of Joining in Present College <span class="req">*</span></label>
+            <input id="presentCollegeJoinDate" name="presentCollegeJoinDate" type="date" required>
+            <div class="error" id="presentCollegeJoinDateError"></div>
+          </div>
+          <div>
+            <label for="presentStationService">Service at Present Station as on 01-06-2026</label>
+            <input id="presentStationService" name="presentStationService" type="text" readonly class="calculated" placeholder="Calculated automatically">
+            <div class="error" id="presentStationServiceError"></div>
+          </div>
           <div><label for="termEnd">Current Contract End Date <span class="req">*</span></label><input id="termEnd" name="termEnd" type="date" value="2026-04-30" required><div class="error" id="termEndError"></div></div>
           <div class="full"><label for="subjects">Subjects Taught <span class="req">*</span></label><textarea id="subjects" name="subjects" maxlength="300" placeholder="Enter subjects separated by commas" required></textarea><div class="hint"><span id="subjectCount">0</span>/300 characters</div><div class="error" id="subjectsError"></div></div>
           <div><label for="academicYear">Renewal Academic Year <span class="req">*</span></label><input id="academicYear" name="academicYear" maxlength="9" placeholder="2026-2027" required><div class="error" id="academicYearError"></div></div>
@@ -224,6 +238,7 @@ const submitBtn = $('submitBtn');
 const textPattern = /^[A-Za-z][A-Za-z .,'()&\/-]{1,119}$/;
 const namePattern = /^[A-Za-z][A-Za-z .'-]{1,79}$/;
 const yearPattern = /^(20\d{2})-(20\d{2})$/;
+const ELIGIBILITY_REFERENCE_DATE = Object.freeze({ year: 2026, month: 6, day: 1 });
 
 $('applicationDate').value = new Date().toISOString().split('T')[0];
 $('specialCategoryTypeWrap').hidden = true;
@@ -242,36 +257,174 @@ function setStatus(type, message) {
   status.textContent = message;
   status.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-function calculateServiceYears() {
+function parseIsoDate(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
 
-    const joinDate = $('contractJoinDate').value;
+  const date = {
+    year: Number(match[1]),
+    month: Number(match[2]),
+    day: Number(match[3])
+  };
 
-    if (!joinDate) {
-        $('serviceYears').value = "";
-        return;
-    }
+  const test = new Date(Date.UTC(date.year, date.month - 1, date.day));
+  if (
+    test.getUTCFullYear() !== date.year ||
+    test.getUTCMonth() !== date.month - 1 ||
+    test.getUTCDate() !== date.day
+  ) return null;
 
-    const start = new Date(joinDate);
-    const today = new Date();
-
-    let years = today.getFullYear() - start.getFullYear();
-
-    if (
-        today.getMonth() < start.getMonth() ||
-        (
-            today.getMonth() === start.getMonth() &&
-            today.getDate() < start.getDate()
-        )
-    ) {
-        years--;
-    }
-
-    if (years < 0) years = 0;
-
-    $('serviceYears').value = years;
+  return date;
 }
 
-$('contractJoinDate').addEventListener('change', calculateServiceYears);
+function compareDateParts(a, b) {
+  if (a.year !== b.year) return a.year - b.year;
+  if (a.month !== b.month) return a.month - b.month;
+  return a.day - b.day;
+}
+
+function daysInMonth(year, month) {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+function addYearsClamped(date, years) {
+  const targetYear = date.year + years;
+  return {
+    year: targetYear,
+    month: date.month,
+    day: Math.min(date.day, daysInMonth(targetYear, date.month))
+  };
+}
+
+function addMonthsClamped(date, monthsToAdd) {
+  const zeroBasedMonth = (date.month - 1) + monthsToAdd;
+  const targetYear = date.year + Math.floor(zeroBasedMonth / 12);
+  const targetMonth = ((zeroBasedMonth % 12) + 12) % 12 + 1;
+
+  return {
+    year: targetYear,
+    month: targetMonth,
+    day: Math.min(date.day, daysInMonth(targetYear, targetMonth))
+  };
+}
+
+function daysBetween(start, end) {
+  const startUtc = Date.UTC(start.year, start.month - 1, start.day);
+  const endUtc = Date.UTC(end.year, end.month - 1, end.day);
+  return Math.round((endUtc - startUtc) / 86400000);
+}
+
+function calculateCalendarDuration(start, end) {
+  if (!start || !end || compareDateParts(start, end) > 0) return null;
+
+  let years = end.year - start.year;
+  let cursor = addYearsClamped(start, years);
+
+  if (compareDateParts(cursor, end) > 0) {
+    years--;
+    cursor = addYearsClamped(start, years);
+  }
+
+  let months = 0;
+  while (months < 11) {
+    const next = addMonthsClamped(cursor, months + 1);
+    if (compareDateParts(next, end) > 0) break;
+    months++;
+  }
+
+  const monthCursor = addMonthsClamped(cursor, months);
+  const days = daysBetween(monthCursor, end);
+
+  return { years, months, days };
+}
+
+function formatDuration(duration) {
+  if (!duration) return '';
+  return `${duration.years} year${duration.years === 1 ? '' : 's'}, ` +
+         `${duration.months} month${duration.months === 1 ? '' : 's'}, ` +
+         `${duration.days} day${duration.days === 1 ? '' : 's'}`;
+}
+
+function isOverSixty(dateOfBirth) {
+  const sixtiethBirthday = {
+    year: dateOfBirth.year + 60,
+    month: dateOfBirth.month,
+    day: dateOfBirth.day
+  };
+
+  // A leap-day birthday reaches the legal 60-year point on 28 February
+  // in a non-leap reference year for this form's administrative calculation.
+  if (
+    dateOfBirth.month === 2 &&
+    dateOfBirth.day === 29 &&
+    daysInMonth(sixtiethBirthday.year, 2) === 28
+  ) {
+    sixtiethBirthday.day = 28;
+  }
+
+  return compareDateParts(ELIGIBILITY_REFERENCE_DATE, sixtiethBirthday) > 0;
+}
+
+function calculateAgeAndEligibility() {
+  const dob = parseIsoDate($('dateOfBirth').value);
+  const message = $('eligibilityMessage');
+
+  $('ageAsOn').value = '';
+  message.hidden = true;
+  message.className = 'eligibility-note';
+  message.textContent = '';
+
+  if (!dob) return;
+
+  const duration = calculateCalendarDuration(dob, ELIGIBILITY_REFERENCE_DATE);
+  if (!duration) {
+    setError('dateOfBirth', 'Date of birth cannot be later than 01-06-2026.');
+    return;
+  }
+
+  $('ageAsOn').value = formatDuration(duration);
+  const overSixty = isOverSixty(dob);
+
+  message.hidden = false;
+  message.classList.add(overSixty ? 'bad' : 'ok');
+  message.textContent = overSixty
+    ? 'Not eligible: the applicant has completed more than 60 years as on 01-06-2026.'
+    : 'Eligible under the age criterion as on 01-06-2026.';
+
+  setError(
+    'dateOfBirth',
+    overSixty ? 'Applicants who have completed more than 60 years are not eligible.' : ''
+  );
+}
+
+function calculateServiceDurations() {
+  const contractJoin = parseIsoDate($('contractJoinDate').value);
+  const presentJoin = parseIsoDate($('presentCollegeJoinDate').value);
+
+  const contractDuration = contractJoin
+    ? calculateCalendarDuration(contractJoin, ELIGIBILITY_REFERENCE_DATE)
+    : null;
+
+  const presentDuration = presentJoin
+    ? calculateCalendarDuration(presentJoin, ELIGIBILITY_REFERENCE_DATE)
+    : null;
+
+  $('completedService').value = formatDuration(contractDuration);
+  $('presentStationService').value = formatDuration(presentDuration);
+
+  if (contractJoin && !contractDuration) {
+    setError('contractJoinDate', 'Joining date cannot be later than 01-06-2026.');
+  }
+
+  if (presentJoin && !presentDuration) {
+    setError('presentCollegeJoinDate', 'Joining date cannot be later than 01-06-2026.');
+  }
+}
+
+$('dateOfBirth').addEventListener('change', calculateAgeAndEligibility);
+$('contractJoinDate').addEventListener('change', calculateServiceDurations);
+$('presentCollegeJoinDate').addEventListener('change', calculateServiceDurations);
+
 function clearStatus() {
   $('status').className = 'status';
   $('status').textContent = '';
@@ -355,9 +508,12 @@ function validateFields() {
     ['phone', /^[6-9]\d{9}$/.test($('phone').value.trim()), 'Enter a valid 10 digit Indian mobile number.'],
     ['cfmsId', /^\d{8,12}$/.test($('cfmsId').value.trim()), 'Enter a valid 8 to 12 digit CFMS Beneficiary ID.'],
     ['specialCategory', ['Yes','No'].includes($('specialCategory').value), 'Select Yes or No.'],
+    ['dateOfBirth', Boolean($('dateOfBirth').value), 'Select the date of birth.'],
+    ['ageAsOn', Boolean($('ageAsOn').value), 'Age could not be calculated.'],
     ['contractJoinDate', Boolean($('contractJoinDate').value), 'Select the contract service joining date.'],
     ['presentCollegeJoinDate', Boolean($('presentCollegeJoinDate').value), 'Select the present college joining date.'],
-    ['serviceYears', Number.isInteger(Number($('serviceYears').value)) && Number($('serviceYears').value) >= 0 && Number($('serviceYears').value) <= 50, 'Enter completed service between 0 and 50 years.'],
+    ['completedService', Boolean($('completedService').value), 'Completed service could not be calculated.'],
+    ['presentStationService', Boolean($('presentStationService').value), 'Present-station service could not be calculated.'],
     ['termEnd', Boolean($('termEnd').value), 'Select the current contract end date.'],
     ['subjects', $('subjects').value.trim().length >= 3, 'Enter at least one subject taught.'],
     ['academicYear', Boolean(academicMatch) && Number(academicMatch[2]) === Number(academicMatch[1]) + 1, 'Use consecutive years in YYYY-YYYY format.'],
@@ -376,13 +532,19 @@ function validateFields() {
 
   checks.forEach(([id, isValid, message]) => { setError(id, isValid ? '' : message); if (!isValid) valid = false; });
 
+  const dobParts = parseIsoDate($('dateOfBirth').value);
+  if (dobParts && isOverSixty(dobParts)) {
+    setError('dateOfBirth', 'Applicants who have completed more than 60 years as on 01-06-2026 are not eligible.');
+    valid = false;
+  }
+
   const contractJoin = $('contractJoinDate').value;
   const presentJoin = $('presentCollegeJoinDate').value;
   const applicationDate = $('applicationDate').value;
   const termEnd = $('termEnd').value;
   if (contractJoin && presentJoin && presentJoin < contractJoin) { setError('presentCollegeJoinDate', 'Present college joining date cannot be earlier than contract service joining date.'); valid = false; }
-  if (contractJoin && applicationDate && contractJoin > applicationDate) { setError('contractJoinDate', 'Joining date cannot be after the application date.'); valid = false; }
-  if (presentJoin && applicationDate && presentJoin > applicationDate) { setError('presentCollegeJoinDate', 'Joining date cannot be after the application date.'); valid = false; }
+  if (contractJoin && contractJoin > '2026-06-01') { setError('contractJoinDate', 'Joining date cannot be later than 01-06-2026.'); valid = false; }
+  if (presentJoin && presentJoin > '2026-06-01') { setError('presentCollegeJoinDate', 'Joining date cannot be later than 01-06-2026.'); valid = false; }
   if (termEnd && contractJoin && termEnd < contractJoin) { setError('termEnd', 'Contract end date cannot be earlier than contract service joining date.'); valid = false; }
   if (!$('declaration').checked) { $('declarationError').textContent = 'You must accept the declaration.'; valid = false; } else $('declarationError').textContent = '';
   return valid;
@@ -393,6 +555,8 @@ function collectFormData(photoDataUrl, signatureDataUrl) {
   return {
     action: 'submitApplication',
     name: $('name').value.trim(),
+    dateOfBirth: $('dateOfBirth').value,
+    ageAsOn: $('ageAsOn').value,
     designation: finalDesignation,
     subject: $('subject').value.trim(),
     college: $('college').value.trim(),
@@ -404,7 +568,8 @@ function collectFormData(photoDataUrl, signatureDataUrl) {
     specialCategoryType: $('specialCategory').value === 'Yes' ? $('specialCategoryType').value : '',
     contractJoinDate: $('contractJoinDate').value,
     presentCollegeJoinDate: $('presentCollegeJoinDate').value,
-    serviceYears: Number($('serviceYears').value),
+    completedService: $('completedService').value,
+    presentStationService: $('presentStationService').value,
     termEnd: $('termEnd').value,
     subjects: $('subjects').value.trim(),
     academicYear: $('academicYear').value.trim(),
@@ -533,7 +698,13 @@ form.addEventListener('reset', () => setTimeout(() => {
   $('termEnd').value='2026-04-30';
 $('district').value='Vizianagaram';
 $('station').value='';
-$('serviceYears').value='';
+$('dateOfBirth').value='';
+$('ageAsOn').value='';
+$('eligibilityMessage').hidden=true;
+$('eligibilityMessage').className='eligibility-note';
+$('eligibilityMessage').textContent='';
+$('completedService').value='';
+$('presentStationService').value='';
   clearStatus();
 }, 0));
 
