@@ -50,7 +50,47 @@
         <div class="grid">
           <div><label for="name">Full Name <span class="req">*</span></label><input id="name" name="name" maxlength="80" autocomplete="name" placeholder="As per official records" required><div class="error" id="nameError"></div></div>
           <div><label for="designation">Designation <span class="req">*</span></label><select id="designation" name="designation" required><option value="">Select designation</option><option>Contract Lecturer</option><option>Guest Faculty</option><option>Academic Consultant</option><option>Other</option></select><div class="error" id="designationError"></div></div>
-          <div><label for="subject">Subject <span class="req">*</span></label><input id="subject" name="subject" maxlength="80" placeholder="Enter main subject / department" required><div class="error" id="subjectError"></div></div>
+          <div><label for="subject">Subject <span class="req">*</span></label><select id="subject" name="subject" required>
+
+<option value="">Select Subject</option>
+
+<option>Botany</option>
+
+<option>Zoology</option>
+
+<option>Physics</option>
+
+<option>Chemistry</option>
+
+<option>Mathematics</option>
+
+<option>Statistics</option>
+
+<option>Computer Science</option>
+
+<option>English</option>
+
+<option>Telugu</option>
+
+<option>Hindi</option>
+
+<option>Sanskrit</option>
+
+<option>Commerce</option>
+
+<option>Economics</option>
+
+<option>History</option>
+
+<option>Political Science</option>
+
+<option>Public Administration</option>
+
+<option>Philosophy</option>
+
+<option>Physical Education</option>
+
+</select><div class="error" id="subjectError"></div></div>
           <div class="full" id="otherDesignationWrap" hidden><label for="otherDesignation">Specify Designation <span class="req">*</span></label><input id="otherDesignation" name="otherDesignation" maxlength="60" placeholder="Enter designation"><div class="error" id="otherDesignationError"></div></div>
           <div>
       <label for="college">Name of the College <span class="req">*</span></label>
@@ -68,11 +108,14 @@
   <div class="error" id="collegeError"></div>
 </div>
           <div><label for="district">District <span class="req">*</span></label><input
-  id="district"
-    name="district"
-    value="Vizianagaram"
-    readonly
-    style="background:#f5f5f5;font-weight:bold;"><div class="error" id="districtError"></div></div>
+  <input
+id="district"
+name="district"
+type="text"
+value="Vizianagaram"
+readonly
+required
+style="background:#f5f5f5;font-weight:bold;"><div class="error" id="districtError"></div></div>
           <div><label for="email">Email Address <span class="req">*</span></label><input id="email" name="email" type="email" maxlength="100" autocomplete="email" placeholder="name@example.com" required><div class="error" id="emailError"></div></div>
           <div><label for="phone">Mobile Number <span class="req">*</span></label><input id="phone" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10 digit mobile number" required><div class="error" id="phoneError"></div></div>
           <div><label for="cfmsId">CFMS Beneficiary ID <span class="req">*</span></label><input id="cfmsId" name="cfmsId" inputmode="numeric" maxlength="12" placeholder="8 to 12 digits" required><div class="error" id="cfmsIdError"></div></div>
@@ -84,16 +127,20 @@
         <div class="grid">
           <div><label for="contractJoinDate">Date of Joining in Contract Services <span class="req">*</span></label><input id="contractJoinDate" name="contractJoinDate" type="date" required><div class="error" id="contractJoinDateError"></div></div>
           <div><label for="presentCollegeJoinDate">Date of Joining in Present College <span class="req">*</span></label><input id="presentCollegeJoinDate" name="presentCollegeJoinDate" type="date" required><div class="error" id="presentCollegeJoinDateError"></div></div>
-          <div><label for="serviceYears">Completed Years of Service <span class="req">*</span></label><input id="serviceYears" name="serviceYears" type="number" min="0" max="50" step="1" required><div class="error" id="serviceYearsError"></div></div>
+          <div><label for="serviceYears">Completed Years of Service <span class="req">*</span></label><inputid="serviceYears"name="serviceYears"readonlystyle="background:#f5f5f5;font-weight:bold;"><div class="error" id="serviceYearsError"></div></div>
           <div><label for="termEnd">Current Contract End Date <span class="req">*</span></label><input id="termEnd" name="termEnd" type="date" value="2026-04-30" required><div class="error" id="termEndError"></div></div>
           <div class="full"><label for="subjects">Subjects Taught <span class="req">*</span></label><textarea id="subjects" name="subjects" maxlength="300" placeholder="Enter subjects separated by commas" required></textarea><div class="hint"><span id="subjectCount">0</span>/300 characters</div><div class="error" id="subjectsError"></div></div>
           <div><label for="academicYear">Renewal Academic Year <span class="req">*</span></label><input id="academicYear" name="academicYear" maxlength="9" placeholder="2026-2027" required><div class="error" id="academicYearError"></div></div>
           <div><label for="applicationDate">Application Date <span class="req">*</span></label><input id="applicationDate" name="applicationDate" type="date" required><div class="error" id="applicationDateError"></div></div>
           <div class="full"><label for="station">Station <span class="req">*</span></label><input
+   <input
     id="station"
     name="station"
+    type="text"
     readonly
-    style="background:#f5f5f5;"><div class="error" id="stationError"></div></div>
+    required
+    value=""
+    style="background:#f5f5f5;font-weight:bold;"><div class="error" id="stationError"></div></div>
         </div>
       </fieldset>
 
@@ -167,7 +214,34 @@ function setStatus(type, message) {
   status.textContent = message;
   status.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
+function calculateServiceYears() {
 
+    const join = $('contractJoinDate').value;
+
+    if (!join) {
+        $('serviceYears').value = '';
+        return;
+    }
+
+    const start = new Date(join);
+    const today = new Date();
+
+    let years = today.getFullYear() - start.getFullYear();
+
+    if (
+        today.getMonth() < start.getMonth() ||
+        (
+            today.getMonth() === start.getMonth() &&
+            today.getDate() < start.getDate()
+        )
+    ) {
+        years--;
+    }
+
+    $('serviceYears').value = years;
+}
+
+$('contractJoinDate').addEventListener('change', calculateServiceYears);
 function clearStatus() {
   $('status').className = 'status';
   $('status').textContent = '';
@@ -407,7 +481,10 @@ form.addEventListener('reset', () => setTimeout(() => {
   $('signaturePreview').style.display = 'none';
   $('subjectCount').textContent = '0';
   $('applicationDate').value = new Date().toISOString().split('T')[0];
-  $('termEnd').value = '2026-04-30';
+  $('termEnd').value='2026-04-30';
+$('district').value='Vizianagaram';
+$('station').value='';
+$('serviceYears').value='';
   clearStatus();
 }, 0));
 
