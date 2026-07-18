@@ -244,7 +244,7 @@ form.addEventListener('submit', async event => {
   event.preventDefault();
   clearStatus();
 
-  if (APPS_SCRIPT_WEB_APP_URL.includes('PASTE_YOUR')) {
+  if (APPS_SCRIPT_WEB_APP_URL.includes('https://script.google.com/macros/s/AKfycbxvy5WAa9EprhdvLB4zVhgTcNDObKmfkwUAx9DSxYGCyN9iZQR6PUNw5IO3ucYijIoG/exec')) {
     setStatus('bad', 'Apps Script Web App URL is not configured in index.html. Deploy Code.gs first and paste the deployment URL.');
     return;
   }
