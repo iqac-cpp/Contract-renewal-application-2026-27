@@ -358,7 +358,47 @@ $('phone').addEventListener('input', () => { $('phone').value = $('phone').value
 $('cfmsId').addEventListener('input', () => { $('cfmsId').value = $('cfmsId').value.replace(/\D/g, '').slice(0, 12); });
 $('photo').addEventListener('change', () => validateImage('photo', 2, true));
 $('signature').addEventListener('change', () => validateImage('signature', 1, false));
+// College → District & Station Mapping
+const collegeData = {
+  "Government Degree College, Cheepurupalli": {
+    district: "Vizianagaram",
+    station: "Cheepurupalli"
+  },
+  "Government Degree College, Rajam": {
+    district: "Vizianagaram",
+    station: "Rajam"
+  },
+  "Government Degree College, Gajapathinagaram": {
+    district: "Vizianagaram",
+    station: "Gajapathinagaram"
+  },
+  "Government Degree College, Vizianagaram": {
+    district: "Vizianagaram",
+    station: "Vizianagaram"
+  },
+  "Government Degree College, S. Kota": {
+    district: "Vizianagaram",
+    station: "S. Kota"
+  },
+  "M.R. Government Sanskrit College, Vizianagaram": {
+    district: "Vizianagaram",
+    station: "Vizianagaram"
+  }
+};
 
+$('college').addEventListener('change', function () {
+
+  const selected = collegeData[this.value];
+
+  if (selected) {
+    $('district').value = selected.district;
+    $('station').value = selected.station;
+  } else {
+    $('district').value = "";
+    $('station').value = "";
+  }
+
+});
 form.addEventListener('reset', () => setTimeout(() => {
   form.querySelectorAll('.error').forEach(el => el.textContent = '');
   form.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
