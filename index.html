@@ -52,8 +52,27 @@
           <div><label for="designation">Designation <span class="req">*</span></label><select id="designation" name="designation" required><option value="">Select designation</option><option>Contract Lecturer</option><option>Guest Faculty</option><option>Academic Consultant</option><option>Other</option></select><div class="error" id="designationError"></div></div>
           <div><label for="subject">Subject <span class="req">*</span></label><input id="subject" name="subject" maxlength="80" placeholder="Enter main subject / department" required><div class="error" id="subjectError"></div></div>
           <div class="full" id="otherDesignationWrap" hidden><label for="otherDesignation">Specify Designation <span class="req">*</span></label><input id="otherDesignation" name="otherDesignation" maxlength="60" placeholder="Enter designation"><div class="error" id="otherDesignationError"></div></div>
-          <div><label for="college">Name of the College <span class="req">*</span></label><input id="college" name="college" maxlength="120" placeholder="Full official college name" required><div class="error" id="collegeError"></div></div>
-          <div><label for="district">District <span class="req">*</span></label><input id="district" name="district" maxlength="50" required><div class="error" id="districtError"></div></div>
+          <div>
+      <label for="college">Name of the College <span class="req">*</span></label>
+
+      <select id="college" name="college" required>
+      <option value="">-- Select College --</option>
+      <option value="Government Degree College, Cheepurupalli">Government Degree College, Cheepurupalli</option>
+      <option value="Government Degree College, Rajam">Government Degree College, Rajam</option>
+      <option value="Government Degree College, Gajapathinagaram">Government Degree College, Gajapathinagaram</option>
+      <option value="M.R. Government Sanskrit College, Vizianagaram">M.R. Government Sanskrit College, Vizianagaram</option>
+      <option value="Government Degree College, Vizianagaram">Government Degree College, Vizianagaram</option>
+      <option value="Government Degree College, S. Kota">Government Degree College, S. Kota</option>
+    </select>
+
+  <div class="error" id="collegeError"></div>
+</div>
+          <div><label for="district">District <span class="req">*</span></label><input
+  id="district"
+    name="district"
+    value="Vizianagaram"
+    readonly
+    style="background:#f5f5f5;font-weight:bold;"><div class="error" id="districtError"></div></div>
           <div><label for="email">Email Address <span class="req">*</span></label><input id="email" name="email" type="email" maxlength="100" autocomplete="email" placeholder="name@example.com" required><div class="error" id="emailError"></div></div>
           <div><label for="phone">Mobile Number <span class="req">*</span></label><input id="phone" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10 digit mobile number" required><div class="error" id="phoneError"></div></div>
           <div><label for="cfmsId">CFMS Beneficiary ID <span class="req">*</span></label><input id="cfmsId" name="cfmsId" inputmode="numeric" maxlength="12" placeholder="8 to 12 digits" required><div class="error" id="cfmsIdError"></div></div>
@@ -70,7 +89,11 @@
           <div class="full"><label for="subjects">Subjects Taught <span class="req">*</span></label><textarea id="subjects" name="subjects" maxlength="300" placeholder="Enter subjects separated by commas" required></textarea><div class="hint"><span id="subjectCount">0</span>/300 characters</div><div class="error" id="subjectsError"></div></div>
           <div><label for="academicYear">Renewal Academic Year <span class="req">*</span></label><input id="academicYear" name="academicYear" maxlength="9" placeholder="2026-2027" required><div class="error" id="academicYearError"></div></div>
           <div><label for="applicationDate">Application Date <span class="req">*</span></label><input id="applicationDate" name="applicationDate" type="date" required><div class="error" id="applicationDateError"></div></div>
-          <div class="full"><label for="station">Station <span class="req">*</span></label><input id="station" name="station" maxlength="80" placeholder="College location" required><div class="error" id="stationError"></div></div>
+          <div class="full"><label for="station">Station <span class="req">*</span></label><input
+    id="station"
+    name="station"
+    readonly
+    style="background:#f5f5f5;"><div class="error" id="stationError"></div></div>
         </div>
       </fieldset>
 
@@ -222,7 +245,7 @@ function validateFields() {
     ['name', namePattern.test($('name').value.trim()), 'Enter a valid full name using letters.'],
     ['designation', Boolean($('designation').value), 'Select a designation.'],
     ['subject', /^[A-Za-z][A-Za-z .,&()\/-]{1,79}$/.test($('subject').value.trim()), 'Enter a valid subject or department name.'],
-    ['college', textPattern.test($('college').value.trim()), 'Enter a valid official college name.'],
+    ['college',Boolean($('college').value),'Please select your college.'],
     ['district', /^[A-Za-z][A-Za-z .'-]{1,49}$/.test($('district').value.trim()), 'Enter a valid district name.'],
     ['email', /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test($('email').value.trim()), 'Enter a valid email address.'],
     ['phone', /^[6-9]\d{9}$/.test($('phone').value.trim()), 'Enter a valid 10 digit Indian mobile number.'],
