@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#17365d">
+  <title>Contract Faculty Renewal Application</title>
+  <style>
+    :root{--navy:#17365d;--blue:#24578f;--soft:#f4f7fb;--line:#cbd5e1;--text:#172033;--muted:#64748b;--danger:#b42318;--success:#067647}
+    *{box-sizing:border-box}
+    body{margin:0;background:#eef2f6;color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    .app{max-width:1000px;margin:24px auto;padding:0 16px}
+    .header{padding:26px 30px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;border-radius:15px 15px 0 0}
+    .header h1{margin:0 0 7px;font-size:26px}.header p{margin:0;opacity:.92;line-height:1.5}
+    .card{background:#fff;border-radius:0 0 15px 15px;padding:24px;box-shadow:0 12px 32px rgba(15,23,42,.09)}
+    fieldset{border:1px solid var(--line);border-radius:11px;padding:18px;margin:0 0 18px}
+    legend{font-weight:700;color:var(--navy);padding:0 8px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.full{grid-column:1/-1}
+    label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.req{color:var(--danger)}
+    input,select,textarea{width:100%;padding:11px;border:1px solid #aeb8c5;border-radius:8px;background:#fff;font-size:14px;color:var(--text)}
+    input:focus,select:focus,textarea:focus{outline:3px solid rgba(36,87,143,.13);border-color:var(--blue)}
+    textarea{min-height:92px;resize:vertical}.hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4}
+    .error{min-height:15px;margin-top:4px;font-size:12px;color:var(--danger)}.invalid{border-color:var(--danger)!important;background:#fff7f6!important}
+    .upload{padding:14px;border:1px dashed #94a3b8;border-radius:9px;background:#f8fafc}
+    .preview{display:none;margin-top:10px;object-fit:cover;border:1px solid #64748b;background:#fff}.photo-preview{width:105px;height:135px}.sign-preview{max-width:190px;max-height:65px}
+    .declaration{display:flex;align-items:flex-start;gap:9px;font-weight:400;line-height:1.5}.declaration input{width:auto;margin-top:3px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:12px 18px;font-weight:700;cursor:pointer;font-size:14px}.primary{background:var(--navy);color:#fff}.secondary{background:#e2e8f0;color:var(--text)}.btn:disabled{opacity:.6;cursor:not-allowed}
+    .status{display:none;padding:12px 14px;margin-bottom:16px;border-radius:9px;line-height:1.45}.status.ok{display:block;background:#ecfdf3;color:var(--success)}.status.bad{display:block;background:#fff1f0;color:var(--danger)}.status.info{display:block;background:#eff6ff;color:#1d4ed8}
+    .submission-result{display:none;margin-top:16px;padding:16px;border:1px solid #86efac;border-radius:10px;background:#f0fdf4}.submission-result a{color:#17365d;font-weight:700}
+    .footer-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}
+    @media(max-width:720px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header{padding:22px}.header h1{font-size:22px}.card{padding:16px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <h1>Application for Renewal of Contract Faculty Services</h1>
+    <p>Complete all mandatory fields. The system checks duplicate applications centrally using the CFMS Beneficiary ID and mobile number.</p>
+  </header>
+
+  <main class="card">
+    <div id="status" class="status" role="alert" aria-live="polite"></div>
+    <form id="facultyForm" novalidate>
+      <fieldset>
+        <legend>Applicant Details</legend>
+        <div class="grid">
+          <div><label for="name">Full Name <span class="req">*</span></label><input id="name" name="name" maxlength="80" autocomplete="name" placeholder="As per official records" required><div class="error" id="nameError"></div></div>
+          <div><label for="designation">Designation <span class="req">*</span></label><select id="designation" name="designation" required><option value="">Select designation</option><option>Contract Lecturer</option><option>Guest Faculty</option><option>Academic Consultant</option><option>Other</option></select><div class="error" id="designationError"></div></div>
+          <div class="full" id="otherDesignationWrap" hidden><label for="otherDesignation">Specify Designation <span class="req">*</span></label><input id="otherDesignation" name="otherDesignation" maxlength="60" placeholder="Enter designation"><div class="error" id="otherDesignationError"></div></div>
+          <div><label for="college">Name of the College <span class="req">*</span></label><input id="college" name="college" maxlength="120" placeholder="Full official college name" required><div class="error" id="collegeError"></div></div>
+          <div><label for="district">District <span class="req">*</span></label><input id="district" name="district" maxlength="50" required><div class="error" id="districtError"></div></div>
+          <div><label for="email">Email Address <span class="req">*</span></label><input id="email" name="email" type="email" maxlength="100" autocomplete="email" placeholder="name@example.com" required><div class="error" id="emailError"></div></div>
+          <div><label for="phone">Mobile Number <span class="req">*</span></label><input id="phone" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10 digit mobile number" required><div class="error" id="phoneError"></div></div>
+          <div><label for="cfmsId">CFMS Beneficiary ID <span class="req">*</span></label><input id="cfmsId" name="cfmsId" inputmode="numeric" maxlength="12" placeholder="8 to 12 digits" required><div class="error" id="cfmsIdError"></div></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Service Details</legend>
+        <div class="grid">
+          <div><label for="contractJoinDate">Date of Joining in Contract Services <span class="req">*</span></label><input id="contractJoinDate" name="contractJoinDate" type="date" required><div class="error" id="contractJoinDateError"></div></div>
+          <div><label for="presentCollegeJoinDate">Date of Joining in Present College <span class="req">*</span></label><input id="presentCollegeJoinDate" name="presentCollegeJoinDate" type="date" required><div class="error" id="presentCollegeJoinDateError"></div></div>
+          <div><label for="serviceYears">Completed Years of Service <span class="req">*</span></label><input id="serviceYears" name="serviceYears" type="number" min="0" max="50" step="1" required><div class="error" id="serviceYearsError"></div></div>
+          <div><label for="termEnd">Current Contract End Date <span class="req">*</span></label><input id="termEnd" name="termEnd" type="date" value="2026-04-30" required><div class="error" id="termEndError"></div></div>
+          <div class="full"><label for="subjects">Subjects Taught <span class="req">*</span></label><textarea id="subjects" name="subjects" maxlength="300" placeholder="Enter subjects separated by commas" required></textarea><div class="hint"><span id="subjectCount">0</span>/300 characters</div><div class="error" id="subjectsError"></div></div>
+          <div><label for="academicYear">Renewal Academic Year <span class="req">*</span></label><input id="academicYear" name="academicYear" maxlength="9" placeholder="2026-2027" required><div class="error" id="academicYearError"></div></div>
+          <div><label for="applicationDate">Application Date <span class="req">*</span></label><input id="applicationDate" name="applicationDate" type="date" required><div class="error" id="applicationDateError"></div></div>
+          <div class="full"><label for="station">Station <span class="req">*</span></label><input id="station" name="station" maxlength="80" placeholder="College location" required><div class="error" id="stationError"></div></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Photo and Signature</legend>
+        <div class="grid">
+          <div class="upload"><label for="photo">Passport Size Photograph <span class="req">*</span></label><input id="photo" name="photo" type="file" accept="image/jpeg,image/png" required><div class="hint">JPG or PNG only, below 2 MB, portrait orientation close to 35:45.</div><img id="photoPreview" class="preview photo-preview" alt="Selected passport photograph"><div class="error" id="photoError"></div></div>
+          <div class="upload"><label for="signature">Signature Image <span class="req">*</span></label><input id="signature" name="signature" type="file" accept="image/jpeg,image/png" required><div class="hint">JPG or PNG only, below 1 MB, preferably on a white background.</div><img id="signaturePreview" class="preview sign-preview" alt="Selected signature"><div class="error" id="signatureError"></div></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Declaration</legend>
+        <label class="declaration"><input id="declaration" name="declaration" type="checkbox"><span>I declare that the information furnished above is true and correct to the best of my knowledge. <span class="req">*</span></span></label>
+        <div class="error" id="declarationError"></div>
+      </fieldset>
+
+      <div class="actions">
+        <button id="submitBtn" class="btn primary" type="submit">Submit Application</button>
+        <button class="btn secondary" type="reset">Clear Form</button>
+      </div>
+      <div id="submissionResult" class="submission-result"></div>
+      <p class="footer-note">Do not refresh or close the page while the application is being submitted. A successful submission returns an application number and generated PDF link.</p>
+    </form>
+  </main>
+</div>
+
+<script>
+'use strict';
+
+// Replace this after deploying Code.gs as a Google Apps Script Web App.
+const APPS_SCRIPT_WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+const $ = id => document.getElementById(id);
+const form = $('facultyForm');
+const submitBtn = $('submitBtn');
+const textPattern = /^[A-Za-z][A-Za-z .,'()&\/-]{1,119}$/;
+const namePattern = /^[A-Za-z][A-Za-z .'-]{1,79}$/;
+const yearPattern = /^(20\d{2})-(20\d{2})$/;
+
+$('applicationDate').value = new Date().toISOString().split('T')[0];
+
+function setError(id, message) {
+  const field = $(id);
+  const error = $(id + 'Error');
+  if (error) error.textContent = message;
+  if (field) field.classList.toggle('invalid', Boolean(message));
+}
+
+function setStatus(type, message) {
+  const status = $('status');
+  status.className = 'status ' + type;
+  status.textContent = message;
+  status.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearStatus() {
+  $('status').className = 'status';
+  $('status').textContent = '';
+  $('submissionResult').style.display = 'none';
+  $('submissionResult').innerHTML = '';
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Unable to read the selected file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function validateImage(inputId, maxMB, requirePassportRatio) {
+  return new Promise(resolve => {
+    const input = $(inputId);
+    const file = input.files[0];
+    if (!file) { setError(inputId, 'This file is required.'); return resolve(false); }
+    if (!['image/jpeg', 'image/png'].includes(file.type)) { setError(inputId, 'Only JPG and PNG images are allowed.'); return resolve(false); }
+    if (file.size >= maxMB * 1024 * 1024) { setError(inputId, `File size must be below ${maxMB} MB.`); return resolve(false); }
+
+    const image = new Image();
+    image.onload = () => {
+      if (requirePassportRatio) {
+        const ratio = image.width / image.height;
+        if (ratio < 0.68 || ratio > 0.88) { setError(inputId, 'Photo must be portrait and close to the passport ratio of 35:45.'); return resolve(false); }
+      }
+      setError(inputId, '');
+      const preview = $(inputId + 'Preview');
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      resolve(true);
+    };
+    image.onerror = () => { setError(inputId, 'The selected image cannot be read.'); resolve(false); };
+    image.src = URL.createObjectURL(file);
+  });
+}
+
+function validateFields() {
+  let valid = true;
+  const academicMatch = $('academicYear').value.trim().match(yearPattern);
+  const checks = [
+    ['name', namePattern.test($('name').value.trim()), 'Enter a valid full name using letters.'],
+    ['designation', Boolean($('designation').value), 'Select a designation.'],
+    ['college', textPattern.test($('college').value.trim()), 'Enter a valid official college name.'],
+    ['district', /^[A-Za-z][A-Za-z .'-]{1,49}$/.test($('district').value.trim()), 'Enter a valid district name.'],
+    ['email', /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test($('email').value.trim()), 'Enter a valid email address.'],
+    ['phone', /^[6-9]\d{9}$/.test($('phone').value.trim()), 'Enter a valid 10 digit Indian mobile number.'],
+    ['cfmsId', /^\d{8,12}$/.test($('cfmsId').value.trim()), 'Enter a valid 8 to 12 digit CFMS Beneficiary ID.'],
+    ['contractJoinDate', Boolean($('contractJoinDate').value), 'Select the contract service joining date.'],
+    ['presentCollegeJoinDate', Boolean($('presentCollegeJoinDate').value), 'Select the present college joining date.'],
+    ['serviceYears', Number.isInteger(Number($('serviceYears').value)) && Number($('serviceYears').value) >= 0 && Number($('serviceYears').value) <= 50, 'Enter completed service between 0 and 50 years.'],
+    ['termEnd', Boolean($('termEnd').value), 'Select the current contract end date.'],
+    ['subjects', $('subjects').value.trim().length >= 3, 'Enter at least one subject taught.'],
+    ['academicYear', Boolean(academicMatch) && Number(academicMatch[2]) === Number(academicMatch[1]) + 1, 'Use consecutive years in YYYY-YYYY format.'],
+    ['applicationDate', Boolean($('applicationDate').value), 'Select the application date.'],
+    ['station', /^[A-Za-z0-9][A-Za-z0-9 .,'()&\/-]{1,79}$/.test($('station').value.trim()), 'Enter a valid station.']
+  ];
+
+  if ($('designation').value === 'Other') checks.push(['otherDesignation', textPattern.test($('otherDesignation').value.trim()), 'Specify a valid designation.']);
+  else setError('otherDesignation', '');
+
+  checks.forEach(([id, isValid, message]) => { setError(id, isValid ? '' : message); if (!isValid) valid = false; });
+
+  const contractJoin = $('contractJoinDate').value;
+  const presentJoin = $('presentCollegeJoinDate').value;
+  const applicationDate = $('applicationDate').value;
+  const termEnd = $('termEnd').value;
+  if (contractJoin && presentJoin && presentJoin < contractJoin) { setError('presentCollegeJoinDate', 'Present college joining date cannot be earlier than contract service joining date.'); valid = false; }
+  if (contractJoin && applicationDate && contractJoin > applicationDate) { setError('contractJoinDate', 'Joining date cannot be after the application date.'); valid = false; }
+  if (presentJoin && applicationDate && presentJoin > applicationDate) { setError('presentCollegeJoinDate', 'Joining date cannot be after the application date.'); valid = false; }
+  if (termEnd && contractJoin && termEnd < contractJoin) { setError('termEnd', 'Contract end date cannot be earlier than contract service joining date.'); valid = false; }
+  if (!$('declaration').checked) { $('declarationError').textContent = 'You must accept the declaration.'; valid = false; } else $('declarationError').textContent = '';
+  return valid;
+}
+
+function collectFormData(photoDataUrl, signatureDataUrl) {
+  const finalDesignation = $('designation').value === 'Other' ? $('otherDesignation').value.trim() : $('designation').value;
+  return {
+    action: 'submitApplication',
+    name: $('name').value.trim(),
+    designation: finalDesignation,
+    college: $('college').value.trim(),
+    district: $('district').value.trim(),
+    email: $('email').value.trim().toLowerCase(),
+    phone: $('phone').value.trim(),
+    cfmsId: $('cfmsId').value.trim(),
+    contractJoinDate: $('contractJoinDate').value,
+    presentCollegeJoinDate: $('presentCollegeJoinDate').value,
+    serviceYears: Number($('serviceYears').value),
+    termEnd: $('termEnd').value,
+    subjects: $('subjects').value.trim(),
+    academicYear: $('academicYear').value.trim(),
+    applicationDate: $('applicationDate').value,
+    station: $('station').value.trim(),
+    declaration: true,
+    photo: { dataUrl: photoDataUrl, fileName: $('photo').files[0].name, mimeType: $('photo').files[0].type },
+    signature: { dataUrl: signatureDataUrl, fileName: $('signature').files[0].name, mimeType: $('signature').files[0].type }
+  };
+}
+
+async function submitApplication(payload) {
+  const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload),
+    redirect: 'follow'
+  });
+  if (!response.ok) throw new Error(`Server returned HTTP ${response.status}.`);
+  return response.json();
+}
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  clearStatus();
+
+  if (APPS_SCRIPT_WEB_APP_URL.includes('PASTE_YOUR')) {
+    setStatus('bad', 'Apps Script Web App URL is not configured in index.html. Deploy Code.gs first and paste the deployment URL.');
+    return;
+  }
+
+  const fieldsOk = validateFields();
+  const [photoOk, signatureOk] = await Promise.all([
+    validateImage('photo', 2, true),
+    validateImage('signature', 1, false)
+  ]);
+  if (!fieldsOk || !photoOk || !signatureOk) { setStatus('bad', 'Please correct the highlighted fields before submitting.'); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+  setStatus('info', 'Validating and generating your application PDF...');
+
+  try {
+    const [photoDataUrl, signatureDataUrl] = await Promise.all([
+      fileToDataUrl($('photo').files[0]),
+      fileToDataUrl($('signature').files[0])
+    ]);
+    const result = await submitApplication(collectFormData(photoDataUrl, signatureDataUrl));
+    if (!result.success) throw new Error(result.message || 'Submission failed.');
+
+    setStatus('ok', `Application submitted successfully. Application Number: ${result.applicationNumber}`);
+    const resultBox = $('submissionResult');
+    resultBox.style.display = 'block';
+    resultBox.innerHTML = `<strong>Application Number:</strong> ${escapeHtml(result.applicationNumber)}<br><strong>Status:</strong> Submitted<br>${result.pdfUrl ? `<a href="${encodeURI(result.pdfUrl)}" target="_blank" rel="noopener">Open generated PDF</a>` : ''}`;
+    form.querySelectorAll('input,select,textarea,button').forEach(el => el.disabled = true);
+  } catch (error) {
+    setStatus('bad', error.message || 'Unable to submit the application. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Application';
+  }
+});
+
+$('designation').addEventListener('change', () => { $('otherDesignationWrap').hidden = $('designation').value !== 'Other'; });
+$('subjects').addEventListener('input', () => { $('subjectCount').textContent = $('subjects').value.length; });
+$('phone').addEventListener('input', () => { $('phone').value = $('phone').value.replace(/\D/g, '').slice(0, 10); });
+$('cfmsId').addEventListener('input', () => { $('cfmsId').value = $('cfmsId').value.replace(/\D/g, '').slice(0, 12); });
+$('photo').addEventListener('change', () => validateImage('photo', 2, true));
+$('signature').addEventListener('change', () => validateImage('signature', 1, false));
+
+form.addEventListener('reset', () => setTimeout(() => {
+  form.querySelectorAll('.error').forEach(el => el.textContent = '');
+  form.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+  $('otherDesignationWrap').hidden = true;
+  $('photoPreview').style.display = 'none';
+  $('signaturePreview').style.display = 'none';
+  $('subjectCount').textContent = '0';
+  $('applicationDate').value = new Date().toISOString().split('T')[0];
+  $('termEnd').value = '2026-04-30';
+  clearStatus();
+}, 0));
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+}
+</script>
+</body>
+</html>
