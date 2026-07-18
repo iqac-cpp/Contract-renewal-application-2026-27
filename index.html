@@ -27,6 +27,10 @@
     .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:12px 18px;font-weight:700;cursor:pointer;font-size:14px}.primary{background:var(--navy);color:#fff}.secondary{background:#e2e8f0;color:var(--text)}.btn:disabled{opacity:.6;cursor:not-allowed}
     .status{display:none;padding:12px 14px;margin-bottom:16px;border-radius:9px;line-height:1.45}.status.ok{display:block;background:#ecfdf3;color:var(--success)}.status.bad{display:block;background:#fff1f0;color:var(--danger)}.status.info{display:block;background:#eff6ff;color:#1d4ed8}
     .submission-result{display:none;margin-top:16px;padding:16px;border:1px solid #86efac;border-radius:10px;background:#f0fdf4}.submission-result a{color:#17365d;font-weight:700}
+    .modal-backdrop{display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.62);padding:18px;align-items:center;justify-content:center}
+    .modal-backdrop.show{display:flex}.success-modal{width:min(480px,100%);background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(15,23,42,.3);overflow:hidden;animation:modalIn .2s ease-out}
+    .modal-head{background:#ecfdf3;padding:24px 24px 18px;text-align:center}.success-icon{width:58px;height:58px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:#067647;color:#fff;font-size:32px;font-weight:700}.modal-head h2{margin:0;color:#065f46;font-size:23px}.modal-body{padding:22px 24px}.modal-body p{margin:0 0 13px;line-height:1.55}.modal-details{background:#f8fafc;border:1px solid #dbe3ec;border-radius:10px;padding:13px 15px;margin:14px 0}.modal-details strong{color:var(--navy)}.modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.modal-link{display:inline-block;text-decoration:none}.modal-note{font-size:13px;color:var(--muted)}
+    @keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
     .footer-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5}
     @media(max-width:720px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.header{padding:22px}.header h1{font-size:22px}.card{padding:16px}}
   </style>
@@ -94,6 +98,24 @@
   </main>
 </div>
 
+<div id="successModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+  <div class="success-modal">
+    <div class="modal-head">
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <h2 id="successModalTitle">Application Submitted</h2>
+    </div>
+    <div class="modal-body">
+      <p>Your application has been submitted successfully.</p>
+      <div id="modalDetails" class="modal-details"></div>
+      <p id="modalEmailMessage" class="modal-note"></p>
+      <div class="modal-actions">
+        <a id="modalPdfLink" class="btn primary modal-link" href="#" target="_blank" rel="noopener">Open PDF</a>
+        <button id="modalCloseBtn" class="btn secondary" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 
@@ -128,6 +150,35 @@ function clearStatus() {
   $('status').textContent = '';
   $('submissionResult').style.display = 'none';
   $('submissionResult').innerHTML = '';
+}
+
+function showSuccessModal(result, email) {
+  const modal = $('successModal');
+  $('modalDetails').innerHTML = `<strong>Application Number:</strong> ${escapeHtml(result.applicationNumber)}<br><strong>Status:</strong> Submitted`;
+  $('modalEmailMessage').textContent = result.emailMessage || (result.emailSent ? `A confirmation email has been sent to ${email}.` : 'Your application was saved successfully.');
+  const pdfLink = $('modalPdfLink');
+  if (result.pdfUrl) {
+    pdfLink.href = result.pdfUrl;
+    pdfLink.style.display = 'inline-block';
+  } else {
+    pdfLink.removeAttribute('href');
+    pdfLink.style.display = 'none';
+  }
+  modal.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  $('modalCloseBtn').focus();
+}
+
+function closeSuccessModal() {
+  $('successModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function resetFormAfterSuccess() {
+  form.reset();
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit Application';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function fileToDataUrl(file) {
@@ -268,11 +319,9 @@ form.addEventListener('submit', async event => {
     const result = await submitApplication(collectFormData(photoDataUrl, signatureDataUrl));
     if (!result.success) throw new Error(result.message || 'Submission failed.');
 
-    setStatus('ok', `Application submitted successfully. Application Number: ${result.applicationNumber}`);
-    const resultBox = $('submissionResult');
-    resultBox.style.display = 'block';
-    resultBox.innerHTML = `<strong>Application Number:</strong> ${escapeHtml(result.applicationNumber)}<br><strong>Status:</strong> Submitted<br>${result.pdfUrl ? `<a href="${encodeURI(result.pdfUrl)}" target="_blank" rel="noopener">Open generated PDF</a>` : ''}`;
-    form.querySelectorAll('input,select,textarea,button').forEach(el => el.disabled = true);
+    const submittedEmail = $('email').value.trim().toLowerCase();
+    resetFormAfterSuccess();
+    showSuccessModal(result, submittedEmail);
   } catch (error) {
     setStatus('bad', error.message || 'Unable to submit the application. Please try again.');
     submitBtn.disabled = false;
@@ -298,6 +347,10 @@ form.addEventListener('reset', () => setTimeout(() => {
   $('termEnd').value = '2026-04-30';
   clearStatus();
 }, 0));
+
+$('modalCloseBtn').addEventListener('click', closeSuccessModal);
+$('successModal').addEventListener('click', event => { if (event.target === $('successModal')) closeSuccessModal(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && $('successModal').classList.contains('show')) closeSuccessModal(); });
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
