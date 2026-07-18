@@ -38,6 +38,7 @@
 <body>
 <div class="app">
   <header class="header">
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px;">Government Degree College, Cheepurupalli</div>
     <h1>Application for Renewal of Contract Faculty Services</h1>
     <p>Complete all mandatory fields. The system checks duplicate applications centrally using the CFMS Beneficiary ID and mobile number.</p>
   </header>
@@ -107,18 +108,32 @@
 
   <div class="error" id="collegeError"></div>
 </div>
-          <div><label for="district">District <span class="req">*</span></label><input
-  <input
-id="district"
-name="district"
-type="text"
-value="Vizianagaram"
-readonly
-required
-style="background:#f5f5f5;font-weight:bold;"><div class="error" id="districtError"></div></div>
+          <div>
+  <label for="district">District <span class="req">*</span></label>
+  <input id="district" name="district" type="text" value="Vizianagaram" readonly required style="background:#f5f5f5;font-weight:bold;">
+  <div class="error" id="districtError"></div>
+</div>
           <div><label for="email">Email Address <span class="req">*</span></label><input id="email" name="email" type="email" maxlength="100" autocomplete="email" placeholder="name@example.com" required><div class="error" id="emailError"></div></div>
           <div><label for="phone">Mobile Number <span class="req">*</span></label><input id="phone" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel" placeholder="10 digit mobile number" required><div class="error" id="phoneError"></div></div>
           <div><label for="cfmsId">CFMS Beneficiary ID <span class="req">*</span></label><input id="cfmsId" name="cfmsId" inputmode="numeric" maxlength="12" placeholder="8 to 12 digits" required><div class="error" id="cfmsIdError"></div></div>
+          <div>
+            <label for="specialCategory">Special Category <span class="req">*</span></label>
+            <select id="specialCategory" name="specialCategory" required>
+              <option value="">Select Yes or No</option>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+            <div class="error" id="specialCategoryError"></div>
+          </div>
+          <div id="specialCategoryTypeWrap" hidden>
+            <label for="specialCategoryType">Mention Category <span class="req">*</span></label>
+            <select id="specialCategoryType" name="specialCategoryType">
+              <option value="">Select category</option>
+              <option value="Women Contract Faculty">Women Contract Faculty</option>
+              <option value="Disabled">Disabled</option>
+            </select>
+            <div class="error" id="specialCategoryTypeError"></div>
+          </div>
         </div>
       </fieldset>
 
@@ -147,15 +162,11 @@ style="background:#f5f5f5;font-weight:bold;"><div class="error" id="districtErro
           <div class="full"><label for="subjects">Subjects Taught <span class="req">*</span></label><textarea id="subjects" name="subjects" maxlength="300" placeholder="Enter subjects separated by commas" required></textarea><div class="hint"><span id="subjectCount">0</span>/300 characters</div><div class="error" id="subjectsError"></div></div>
           <div><label for="academicYear">Renewal Academic Year <span class="req">*</span></label><input id="academicYear" name="academicYear" maxlength="9" placeholder="2026-2027" required><div class="error" id="academicYearError"></div></div>
           <div><label for="applicationDate">Application Date <span class="req">*</span></label><input id="applicationDate" name="applicationDate" type="date" required><div class="error" id="applicationDateError"></div></div>
-          <div class="full"><label for="station">Station <span class="req">*</span></label><input
-   <input
-    id="station"
-    name="station"
-    type="text"
-    readonly
-    required
-    value=""
-    style="background:#f5f5f5;font-weight:bold;"><div class="error" id="stationError"></div></div>
+          <div class="full">
+  <label for="station">Station <span class="req">*</span></label>
+  <input id="station" name="station" type="text" readonly required value="" style="background:#f5f5f5;font-weight:bold;">
+  <div class="error" id="stationError"></div>
+</div>
         </div>
       </fieldset>
 
@@ -215,6 +226,8 @@ const namePattern = /^[A-Za-z][A-Za-z .'-]{1,79}$/;
 const yearPattern = /^(20\d{2})-(20\d{2})$/;
 
 $('applicationDate').value = new Date().toISOString().split('T')[0];
+$('specialCategoryTypeWrap').hidden = true;
+$('specialCategoryType').required = false;
 
 function setError(id, message) {
   const field = $(id);
@@ -341,6 +354,7 @@ function validateFields() {
     ['email', /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test($('email').value.trim()), 'Enter a valid email address.'],
     ['phone', /^[6-9]\d{9}$/.test($('phone').value.trim()), 'Enter a valid 10 digit Indian mobile number.'],
     ['cfmsId', /^\d{8,12}$/.test($('cfmsId').value.trim()), 'Enter a valid 8 to 12 digit CFMS Beneficiary ID.'],
+    ['specialCategory', ['Yes','No'].includes($('specialCategory').value), 'Select Yes or No.'],
     ['contractJoinDate', Boolean($('contractJoinDate').value), 'Select the contract service joining date.'],
     ['presentCollegeJoinDate', Boolean($('presentCollegeJoinDate').value), 'Select the present college joining date.'],
     ['serviceYears', Number.isInteger(Number($('serviceYears').value)) && Number($('serviceYears').value) >= 0 && Number($('serviceYears').value) <= 50, 'Enter completed service between 0 and 50 years.'],
@@ -353,6 +367,12 @@ function validateFields() {
 
   if ($('designation').value === 'Other') checks.push(['otherDesignation', textPattern.test($('otherDesignation').value.trim()), 'Specify a valid designation.']);
   else setError('otherDesignation', '');
+
+  if ($('specialCategory').value === 'Yes') {
+    checks.push(['specialCategoryType', ['Women Contract Faculty','Disabled'].includes($('specialCategoryType').value), 'Select the applicable special category.']);
+  } else {
+    setError('specialCategoryType', '');
+  }
 
   checks.forEach(([id, isValid, message]) => { setError(id, isValid ? '' : message); if (!isValid) valid = false; });
 
@@ -380,6 +400,8 @@ function collectFormData(photoDataUrl, signatureDataUrl) {
     email: $('email').value.trim().toLowerCase(),
     phone: $('phone').value.trim(),
     cfmsId: $('cfmsId').value.trim(),
+    specialCategory: $('specialCategory').value,
+    specialCategoryType: $('specialCategory').value === 'Yes' ? $('specialCategoryType').value : '',
     contractJoinDate: $('contractJoinDate').value,
     presentCollegeJoinDate: $('presentCollegeJoinDate').value,
     serviceYears: Number($('serviceYears').value),
@@ -444,6 +466,12 @@ form.addEventListener('submit', async event => {
 });
 
 $('designation').addEventListener('change', () => { $('otherDesignationWrap').hidden = $('designation').value !== 'Other'; });
+$('specialCategory').addEventListener('change', () => {
+  const isYes = $('specialCategory').value === 'Yes';
+  $('specialCategoryTypeWrap').hidden = !isYes;
+  $('specialCategoryType').required = isYes;
+  if (!isYes) { $('specialCategoryType').value = ''; setError('specialCategoryType', ''); }
+});
 $('subjects').addEventListener('input', () => { $('subjectCount').textContent = $('subjects').value.length; });
 $('phone').addEventListener('input', () => { $('phone').value = $('phone').value.replace(/\D/g, '').slice(0, 10); });
 $('cfmsId').addEventListener('input', () => { $('cfmsId').value = $('cfmsId').value.replace(/\D/g, '').slice(0, 12); });
@@ -494,8 +522,12 @@ form.addEventListener('reset', () => setTimeout(() => {
   form.querySelectorAll('.error').forEach(el => el.textContent = '');
   form.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
   $('otherDesignationWrap').hidden = true;
+  $('specialCategoryTypeWrap').hidden = true;
+  $('specialCategoryType').required = false;
   $('photoPreview').style.display = 'none';
+  $('photoPreview').removeAttribute('src');
   $('signaturePreview').style.display = 'none';
+  $('signaturePreview').removeAttribute('src');
   $('subjectCount').textContent = '0';
   $('applicationDate').value = new Date().toISOString().split('T')[0];
   $('termEnd').value='2026-04-30';
