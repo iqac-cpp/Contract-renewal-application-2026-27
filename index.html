@@ -46,6 +46,7 @@
         <div class="grid">
           <div><label for="name">Full Name <span class="req">*</span></label><input id="name" name="name" maxlength="80" autocomplete="name" placeholder="As per official records" required><div class="error" id="nameError"></div></div>
           <div><label for="designation">Designation <span class="req">*</span></label><select id="designation" name="designation" required><option value="">Select designation</option><option>Contract Lecturer</option><option>Guest Faculty</option><option>Academic Consultant</option><option>Other</option></select><div class="error" id="designationError"></div></div>
+          <div><label for="subject">Subject <span class="req">*</span></label><input id="subject" name="subject" maxlength="80" placeholder="Enter main subject / department" required><div class="error" id="subjectError"></div></div>
           <div class="full" id="otherDesignationWrap" hidden><label for="otherDesignation">Specify Designation <span class="req">*</span></label><input id="otherDesignation" name="otherDesignation" maxlength="60" placeholder="Enter designation"><div class="error" id="otherDesignationError"></div></div>
           <div><label for="college">Name of the College <span class="req">*</span></label><input id="college" name="college" maxlength="120" placeholder="Full official college name" required><div class="error" id="collegeError"></div></div>
           <div><label for="district">District <span class="req">*</span></label><input id="district" name="district" maxlength="50" required><div class="error" id="districtError"></div></div>
@@ -97,7 +98,7 @@
 'use strict';
 
 // Replace this after deploying Code.gs as a Google Apps Script Web App.
-const APPS_SCRIPT_WEB_APP_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxvy5WAa9EprhdvLB4zVhgTcNDObKmfkwUAx9DSxYGCyN9iZQR6PUNw5IO3ucYijIoG/exec';
 
 const $ = id => document.getElementById(id);
 const form = $('facultyForm');
@@ -169,6 +170,7 @@ function validateFields() {
   const checks = [
     ['name', namePattern.test($('name').value.trim()), 'Enter a valid full name using letters.'],
     ['designation', Boolean($('designation').value), 'Select a designation.'],
+    ['subject', /^[A-Za-z][A-Za-z .,&()\/-]{1,79}$/.test($('subject').value.trim()), 'Enter a valid subject or department name.'],
     ['college', textPattern.test($('college').value.trim()), 'Enter a valid official college name.'],
     ['district', /^[A-Za-z][A-Za-z .'-]{1,49}$/.test($('district').value.trim()), 'Enter a valid district name.'],
     ['email', /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test($('email').value.trim()), 'Enter a valid email address.'],
@@ -207,6 +209,7 @@ function collectFormData(photoDataUrl, signatureDataUrl) {
     action: 'submitApplication',
     name: $('name').value.trim(),
     designation: finalDesignation,
+    subject: $('subject').value.trim(),
     college: $('college').value.trim(),
     district: $('district').value.trim(),
     email: $('email').value.trim().toLowerCase(),
