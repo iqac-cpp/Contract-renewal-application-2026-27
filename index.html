@@ -541,7 +541,9 @@ function initializeSignaturePad() {
   });
 
   ['pointerup','pointerleave'].forEach(ev=>{
-    signatureCanvas.addEventListener(ev,()=>signatureStarted=false);
+    signatureCanvas.addEventListener(ev,()=>{
+      signatureStarted = true;
+    });
   });
 
   $('clearSignature').addEventListener('click',()=>{
@@ -553,13 +555,35 @@ function initializeSignaturePad() {
 }
 
 function getSignatureDataUrl(){
-  if(!signatureStarted){
+
+  const pixels = signatureContext.getImageData(
+    0,
+    0,
+    signatureCanvas.width,
+    signatureCanvas.height
+  ).data;
+
+  let hasInk = false;
+
+  for(let i = 3; i < pixels.length; i += 4){
+    if(pixels[i] !== 0){
+      hasInk = true;
+      break;
+    }
+  }
+
+  if(!hasInk){
     setError('signature','Please provide your signature.');
     return null;
   }
-  const url=signatureCanvas.toDataURL('image/png');
-  $('signaturePreview').src=url;
-  $('signaturePreview').style.display='block';
+
+  setError('signature','');
+
+  const url = signatureCanvas.toDataURL('image/png');
+
+  $('signaturePreview').src = url;
+  $('signaturePreview').style.display = 'block';
+
   return url;
 }
 
