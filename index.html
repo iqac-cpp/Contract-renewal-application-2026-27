@@ -497,13 +497,19 @@ function closeSuccessModal() {
 
 function resetFormAfterSuccess() {
   form.reset();
+  if (signatureContext && signatureCanvas) {
+    signatureContext.clearRect(0,0,signatureCanvas.width,signatureCanvas.height);
+    signatureStarted=false;
+    signatureConfirmed=false;
+    $('signaturePreview').style.display='none';
+  }
   submitBtn.disabled = false;
   submitBtn.textContent = 'Submit Application';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 
-let signatureCanvas, signatureContext, signatureStarted = false;
+let signatureCanvas, signatureContext, signatureStarted = false, signatureConfirmed = false;
 
 function initializeSignaturePad() {
   signatureCanvas = $('signaturePad');
@@ -526,6 +532,7 @@ function initializeSignaturePad() {
   }
 
   signatureCanvas.addEventListener('pointerdown', e=>{
+    e.preventDefault();
     signatureStarted=true;
     const p=point(e);
     signatureContext.beginPath();
@@ -534,6 +541,7 @@ function initializeSignaturePad() {
   });
 
   signatureCanvas.addEventListener('pointermove', e=>{
+    e.preventDefault();
     if(!signatureStarted) return;
     const p=point(e);
     signatureContext.lineTo(p.x,p.y);
@@ -551,39 +559,20 @@ function initializeSignaturePad() {
     $('signaturePreview').style.display='none';
     setError('signature','');
     signatureStarted=false;
+    signatureConfirmed=false;
   });
 }
 
 function getSignatureDataUrl(){
-
-  const pixels = signatureContext.getImageData(
-    0,
-    0,
-    signatureCanvas.width,
-    signatureCanvas.height
-  ).data;
-
-  let hasInk = false;
-
-  for(let i = 3; i < pixels.length; i += 4){
-    if(pixels[i] !== 0){
-      hasInk = true;
-      break;
-    }
-  }
-
-  if(!hasInk){
+  if(!signatureStarted){
     setError('signature','Please provide your signature.');
     return null;
   }
 
-  setError('signature','');
-
   const url = signatureCanvas.toDataURL('image/png');
-
   $('signaturePreview').src = url;
   $('signaturePreview').style.display = 'block';
-
+  setError('signature','');
   return url;
 }
 
