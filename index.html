@@ -22,7 +22,7 @@
     textarea{min-height:92px;resize:vertical}.hint{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.4}
     .error{min-height:15px;margin-top:4px;font-size:12px;color:var(--danger)}.invalid{border-color:var(--danger)!important;background:#fff7f6!important}
     .upload{padding:14px;border:1px dashed #94a3b8;border-radius:9px;background:#f8fafc}
-    .preview{display:none;margin-top:10px;object-fit:cover;border:1px solid #64748b;background:#fff}.photo-preview{width:105px;height:135px}.sign-preview{max-width:190px;max-height:65px}
+    .preview{display:none;margin-top:10px;object-fit:cover;border:1px solid #64748b;background:#fff}.photo-preview{width:105px;height:135px}.sign-preview{max-width:190px;max-height:65px}.signature-pad{border:1px dashed #64748b;border-radius:8px;background:#fff;width:100%;height:150px;touch-action:none;cursor:crosshair}
     .declaration{display:flex;align-items:flex-start;gap:9px;font-weight:400;line-height:1.5}.declaration input{width:auto;margin-top:3px}
     .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:12px 18px;font-weight:700;cursor:pointer;font-size:14px}.primary{background:var(--navy);color:#fff}.secondary{background:#e2e8f0;color:var(--text)}.btn:disabled{opacity:.6;cursor:not-allowed}
     .status{display:none;padding:12px 14px;margin-bottom:16px;border-radius:9px;line-height:1.45}.status.ok{display:block;background:#ecfdf3;color:var(--success)}.status.bad{display:block;background:#fff1f0;color:var(--danger)}.status.info{display:block;background:#eff6ff;color:#1d4ed8}
@@ -188,7 +188,16 @@
         <legend>Photo and Signature</legend>
         <div class="grid">
           <div class="upload"><label for="photo">Passport Size Photograph <span class="req">*</span></label><input id="photo" name="photo" type="file" accept="image/jpeg,image/png" required><div class="hint">JPG or PNG only, below 2 MB, portrait orientation close to 35:45.</div><img id="photoPreview" class="preview photo-preview" alt="Selected passport photograph"><div class="error" id="photoError"></div></div>
-          <div class="upload"><label for="signature">Signature Image <span class="req">*</span></label><input id="signature" name="signature" type="file" accept="image/jpeg,image/png" required><div class="hint">JPG or PNG only, below 1 MB, preferably on a white background.</div><img id="signaturePreview" class="preview sign-preview" alt="Selected signature"><div class="error" id="signatureError"></div></div>
+          <div class="upload">
+<label>Applicant Signature <span class="req">*</span></label>
+<canvas id="signaturePad" class="signature-pad"></canvas>
+<div class="actions" style="margin-top:10px;">
+<button type="button" id="clearSignature" class="btn secondary">Clear Signature</button>
+</div>
+<div class="hint">Sign inside the box using finger or stylus.</div>
+<img id="signaturePreview" class="preview sign-preview" alt="Signature preview">
+<div class="error" id="signatureError"></div>
+</div>
         </div>
       </fieldset>
 
@@ -493,6 +502,67 @@ function resetFormAfterSuccess() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+
+let signatureCanvas, signatureContext, signatureStarted = false;
+
+function initializeSignaturePad() {
+  signatureCanvas = $('signaturePad');
+  signatureContext = signatureCanvas.getContext('2d');
+
+  const resize = () => {
+    const ratio = window.devicePixelRatio || 1;
+    signatureCanvas.width = signatureCanvas.clientWidth * ratio;
+    signatureCanvas.height = signatureCanvas.clientHeight * ratio;
+    signatureContext.scale(ratio, ratio);
+    signatureContext.lineWidth = 2;
+    signatureContext.lineCap = 'round';
+    signatureContext.strokeStyle = '#000';
+  };
+  resize();
+
+  function point(e){
+    const r = signatureCanvas.getBoundingClientRect();
+    return {x:e.clientX-r.left,y:e.clientY-r.top};
+  }
+
+  signatureCanvas.addEventListener('pointerdown', e=>{
+    signatureStarted=true;
+    const p=point(e);
+    signatureContext.beginPath();
+    signatureContext.moveTo(p.x,p.y);
+    signatureCanvas.setPointerCapture(e.pointerId);
+  });
+
+  signatureCanvas.addEventListener('pointermove', e=>{
+    if(!signatureStarted) return;
+    const p=point(e);
+    signatureContext.lineTo(p.x,p.y);
+    signatureContext.stroke();
+  });
+
+  ['pointerup','pointerleave'].forEach(ev=>{
+    signatureCanvas.addEventListener(ev,()=>signatureStarted=false);
+  });
+
+  $('clearSignature').addEventListener('click',()=>{
+    signatureContext.clearRect(0,0,signatureCanvas.width,signatureCanvas.height);
+    $('signaturePreview').style.display='none';
+    setError('signature','');
+    signatureStarted=false;
+  });
+}
+
+function getSignatureDataUrl(){
+  if(!signatureStarted){
+    setError('signature','Please provide your signature.');
+    return null;
+  }
+  const url=signatureCanvas.toDataURL('image/png');
+  $('signaturePreview').src=url;
+  $('signaturePreview').style.display='block';
+  return url;
+}
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -616,7 +686,7 @@ function collectFormData(photoDataUrl, signatureDataUrl) {
     station: $('station').value.trim(),
     declaration: true,
     photo: { dataUrl: photoDataUrl, fileName: $('photo').files[0].name, mimeType: $('photo').files[0].type },
-    signature: { dataUrl: signatureDataUrl, fileName: $('signature').files[0].name, mimeType: $('signature').files[0].type }
+    signature: { dataUrl: signatureDataUrl, fileName: 'signature.png', mimeType: 'image/png' }
   };
 }
 
@@ -654,7 +724,7 @@ form.addEventListener('submit', async event => {
   try {
     const [photoDataUrl, signatureDataUrl] = await Promise.all([
       fileToDataUrl($('photo').files[0]),
-      fileToDataUrl($('signature').files[0])
+      getSignatureDataUrl()
     ]);
     const result = await submitApplication(collectFormData(photoDataUrl, signatureDataUrl));
     if (!result.success) throw new Error(result.message || 'Submission failed.');
@@ -680,7 +750,7 @@ $('subjects').addEventListener('input', () => { $('subjectCount').textContent = 
 $('phone').addEventListener('input', () => { $('phone').value = $('phone').value.replace(/\D/g, '').slice(0, 10); });
 $('cfmsId').addEventListener('input', () => { $('cfmsId').value = $('cfmsId').value.replace(/\D/g, '').slice(0, 12); });
 $('photo').addEventListener('change', () => validateImage('photo', 2, true));
-$('signature').addEventListener('change', () => validateImage('signature', 1, false));
+initializeSignaturePad();
 // College → District & Station Mapping
 const collegeData = {
   "Government Degree College, Cheepurupalli": {
@@ -732,6 +802,8 @@ form.addEventListener('reset', () => setTimeout(() => {
   $('photoPreview').removeAttribute('src');
   $('signaturePreview').style.display = 'none';
   $('signaturePreview').removeAttribute('src');
+  if (signatureContext) signatureContext.clearRect(0,0,signatureCanvas.width,signatureCanvas.height);
+  signatureStarted=false;
   $('subjectCount').textContent = '0';
   $('applicationDate').value = new Date().toISOString().split('T')[0];
   $('termEnd').value='2026-04-30';
