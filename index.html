@@ -397,6 +397,35 @@ function calculateAgeAndEligibility() {
   );
 }
 
+function validateServiceDates() {
+  const contractJoin = parseIsoDate($('contractJoinDate').value);
+  const presentJoin = parseIsoDate($('presentCollegeJoinDate').value);
+  const maxDate = new Date('2026-04-30T00:00:00');
+
+  let valid = true;
+
+  setError('contractJoinDate', '');
+  setError('presentCollegeJoinDate', '');
+
+  if (contractJoin && contractJoin > maxDate) {
+    setError('contractJoinDate', 'Contract joining date cannot be later than 30-04-2026.');
+    valid = false;
+  }
+
+  if (presentJoin && presentJoin > maxDate) {
+    setError('presentCollegeJoinDate', 'Present college joining date cannot be later than 30-04-2026.');
+    valid = false;
+  }
+
+  if (contractJoin && presentJoin && presentJoin < contractJoin) {
+    setError('presentCollegeJoinDate',
+      'Present college joining date cannot be earlier than contract service joining date.');
+    valid = false;
+  }
+
+  return valid;
+}
+
 function calculateServiceDurations() {
   const contractJoin = parseIsoDate($('contractJoinDate').value);
   const presentJoin = parseIsoDate($('presentCollegeJoinDate').value);
@@ -412,28 +441,15 @@ function calculateServiceDurations() {
   $('completedService').value = formatDuration(contractDuration);
   $('presentStationService').value = formatDuration(presentDuration);
 
-  // Clear previous date validation errors when a valid date is selected.
-  if (contractJoin && contractDuration) {
-    setError('contractJoinDate', '');
-  } else if (contractJoin && !contractDuration) {
-    setError('contractJoinDate', 'Joining date cannot be later than 01-06-2026.');
-  }
-
-  if (presentJoin && presentDuration) {
-    setError('presentCollegeJoinDate', '');
-  } else if (presentJoin && !presentDuration) {
-    setError('presentCollegeJoinDate', 'Joining date cannot be later than 01-06-2026.');
-  }
+  validateServiceDates();
 }
 
 $('dateOfBirth').addEventListener('change', calculateAgeAndEligibility);
 $('contractJoinDate').addEventListener('change', () => {
-  setError('contractJoinDate', '');
   calculateServiceDurations();
 });
 
 $('presentCollegeJoinDate').addEventListener('change', () => {
-  setError('presentCollegeJoinDate', '');
   calculateServiceDurations();
 });
 
@@ -554,7 +570,13 @@ function validateFields() {
   const presentJoin = $('presentCollegeJoinDate').value;
   const applicationDate = $('applicationDate').value;
   const termEnd = $('termEnd').value;
-  if (contractJoin && presentJoin && presentJoin < contractJoin) { setError('presentCollegeJoinDate', 'Present college joining date cannot be earlier than contract service joining date.'); valid = false; }
+  if (contractJoin && presentJoin && presentJoin < contractJoin) {
+    setError('presentCollegeJoinDate', 'Present college joining date cannot be earlier than contract service joining date.');
+    valid = false;
+  } else if (presentJoin && contractJoin) {
+    setError('presentCollegeJoinDate', '');
+  }
+
   if (contractJoin && contractJoin > '2026-06-01') { setError('contractJoinDate', 'Joining date cannot be later than 01-06-2026.'); valid = false; }
   if (presentJoin && presentJoin > '2026-06-01') { setError('presentCollegeJoinDate', 'Joining date cannot be later than 01-06-2026.'); valid = false; }
   if (termEnd && contractJoin && termEnd < contractJoin) { setError('termEnd', 'Contract end date cannot be earlier than contract service joining date.'); valid = false; }
