@@ -412,18 +412,30 @@ function calculateServiceDurations() {
   $('completedService').value = formatDuration(contractDuration);
   $('presentStationService').value = formatDuration(presentDuration);
 
-  if (contractJoin && !contractDuration) {
+  // Clear previous date validation errors when a valid date is selected.
+  if (contractJoin && contractDuration) {
+    setError('contractJoinDate', '');
+  } else if (contractJoin && !contractDuration) {
     setError('contractJoinDate', 'Joining date cannot be later than 01-06-2026.');
   }
 
-  if (presentJoin && !presentDuration) {
+  if (presentJoin && presentDuration) {
+    setError('presentCollegeJoinDate', '');
+  } else if (presentJoin && !presentDuration) {
     setError('presentCollegeJoinDate', 'Joining date cannot be later than 01-06-2026.');
   }
 }
 
 $('dateOfBirth').addEventListener('change', calculateAgeAndEligibility);
-$('contractJoinDate').addEventListener('change', calculateServiceDurations);
-$('presentCollegeJoinDate').addEventListener('change', calculateServiceDurations);
+$('contractJoinDate').addEventListener('change', () => {
+  setError('contractJoinDate', '');
+  calculateServiceDurations();
+});
+
+$('presentCollegeJoinDate').addEventListener('change', () => {
+  setError('presentCollegeJoinDate', '');
+  calculateServiceDurations();
+});
 
 function clearStatus() {
   $('status').className = 'status';
