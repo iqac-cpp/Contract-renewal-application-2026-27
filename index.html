@@ -713,8 +713,12 @@ form.addEventListener('submit', async event => {
   const fieldsOk = validateFields();
   const [photoOk, signatureOk] = await Promise.all([
     validateImage('photo', 2, true),
-    validateImage('signature', 1, false)
+    Promise.resolve(signatureStarted)
   ]);
+
+  if (!signatureOk) {
+    setError('signature', 'Please provide your signature.');
+  }
   if (!fieldsOk || !photoOk || !signatureOk) { setStatus('bad', 'Please correct the highlighted fields before submitting.'); return; }
 
   submitBtn.disabled = true;
